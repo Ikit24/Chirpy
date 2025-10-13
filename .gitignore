@@ -1,23 +1,16 @@
-# Compiled binaries
+*.pub
 out
 chirpy
 *.exe
-
-# Go build artifacts
+build artifacts
 *.test
 *.out
-
-# Neovim/Vim files
 *.swp
 *.swo
 *.swn
 *~
 .netrwhist
-
-# OS files
 .DS_Store
 Thumbs.db
-
-# Environment variables
 .env
 .env.local
