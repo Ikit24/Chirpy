@@ -17,7 +17,6 @@ type okResp struct {
 	Valid bool `json:"valid"`
 }
 
-
 func (cfg *apiConfig) handlerValidateChirp(w http.ResponseWriter, r *http.Request) {
 	var params parameters
 	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
@@ -31,3 +30,7 @@ func (cfg *apiConfig) handlerValidateChirp(w http.ResponseWriter, r *http.Reques
 	}
 	writeJSON(w, http.StatusOK, okResp{Valid: true})
 }
+
+func respondWithError(w http.RespondseWriter, code int, msg string) {}
+
+func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {}
