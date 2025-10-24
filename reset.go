@@ -1,10 +1,22 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+	"encoding/json"
+	"log"
+)
 
 func (cfg *apiConfig) handlerReset(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	if cfg.platform != "dev" {
+		http.Error(w, "forbidden", http.StatusForbidden)
+		return
+	}
+	if err := cfg.db.Reset(r.Context()); err != nil {
+		log.Println("reset error:", err)
+		respondWithError(w, http.StatusInternalServerError, "reset failed")
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	cfg.fileserverHits.Store(0)
-	w.Write([]byte("Hits reset to 0"))
+	_ = json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 }
