@@ -1,20 +1,36 @@
 package main
 
 import (
+	_ "github.com/lib/pq"
 	"log"
 	"net/http"
 	"sync/atomic"
+	"database/sql"
+	"os"
+
+	"github.com/joho/godotenv"
+	"github.com/Ikit24/Chirpy/internal/database"
+
 )
 
 type apiConfig struct {
 	fileserverHits atomic.Int32
+	db *database.Queries
 }
 
 func main() {
+	godotenv.Load()
+	dbURL := os.Getenv("DB_URL")
+	db, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	dbQueries := database.New(db)
+
 	const root = "."
 	const port = "8080"
 
-	apiCfg := apiConfig{}
+	apiCfg := apiConfig{db: dbQueries}
 	mux := http.NewServeMux()
 
 	fileServer := http.StripPrefix("/app", http.FileServer(http.Dir(root)))
