@@ -4,13 +4,24 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+	"log"
+	"time"
 
+	"github.com/Ikit24/Chirpy/internal/database"
 	"github.com/google/uuid"
 )
 
 type parameters struct {
 	Body string `json:"body"`
-	User_ID string `json:"user_id"`
+	UserID string `json:"user_id"`
+}
+
+type ChirpResponse struct {
+    ID        uuid.UUID `json:"id"`
+    CreatedAt time.Time `json:"created_at"`
+    UpdatedAt time.Time `json:"updated_at"`
+    Body      string    `json:"body"`
+    UserID    uuid.UUID `json:"user_id"`
 }
 
 func respondWithError(w http.ResponseWriter, code int, msg string) {
@@ -37,25 +48,33 @@ func (cfg *apiConfig) handlerChirps(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cleaned := cleanProfanity(params.Body)
+	cleanedBody := cleanProfanity(params.Body)
 
-	dbChirp, err := cfg.db.CreateChirp(r.Context(), params.Body, Parse(params.User_ID))
+	parsedUserID, err := uuid.Parse(params.UserID)
 	if err != nil {
-		log.Println("chirp error:", err)
-		respondWithError(w, http.StatusInternalServerError, "couldn't create user")
+		respondWithError(w, http.StatusBadRequest, "Invalid User ID format")
 		return
 	}
 
-	chrp := Chirp{
-		ID:	   dbChirp.ID,
+	createChirpParams := database.CreateChirpsParams{
+		Body:   cleanedBody,
+		UserID: parsedUserID,
+	}
+
+	dbChirp, err := cfg.db.CreateChirps(r.Context(), createChirpParams)
+	if err != nil {
+		log.Printf("Error creating chirp : %v", err)
+		respondWithError(w, http.StatusInternalServerError, "couldn't create chirp")
+		return
+	}
+	responseChirp := ChirpResponse{
+		ID:        dbChirp.ID,
 		CreatedAt: dbChirp.CreatedAt,
 		UpdatedAt: dbChirp.UpdatedAt,
-		Body:	   dbChirp.Body,
-		User_ID:   dbChirp.User_ID
+		Body:      dbChirp.Body,
+		UserID:    dbChirp.UserID,
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(chrp)
+	respondWithJSON(w, http.StatusCreated, responseChirp)
 }
 
 func cleanProfanity(body string) string {
