@@ -4,10 +4,13 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 type parameters struct {
 	Body string `json:"body"`
+	User_ID string `json:"user_id"`
 }
 
 func respondWithError(w http.ResponseWriter, code int, msg string) {
@@ -22,7 +25,7 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	_ = json.NewEncoder(w).Encode(payload)
 }
 
-func (cfg *apiConfig) handlerValidateChirp(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerChirps(w http.ResponseWriter, r *http.Request) {
 	var params parameters
 	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Something went wrong")
@@ -35,7 +38,24 @@ func (cfg *apiConfig) handlerValidateChirp(w http.ResponseWriter, r *http.Reques
 	}
 
 	cleaned := cleanProfanity(params.Body)
-	respondWithJSON(w, http.StatusOK, map[string]string{"cleaned_body": cleaned})
+
+	dbChirp, err := cfg.db.CreateChirp(r.Context(), params.Body, Parse(params.User_ID))
+	if err != nil {
+		log.Println("chirp error:", err)
+		respondWithError(w, http.StatusInternalServerError, "couldn't create user")
+		return
+	}
+
+	chrp := Chirp{
+		ID:	   dbChirp.ID,
+		CreatedAt: dbChirp.CreatedAt,
+		UpdatedAt: dbChirp.UpdatedAt,
+		Body:	   dbChirp.Body,
+		User_ID:   dbChirp.User_ID
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	_ = json.NewEncoder(w).Encode(chrp)
 }
 
 func cleanProfanity(body string) string {
