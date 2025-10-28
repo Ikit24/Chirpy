@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 	"log"
-	"time"
 
 	"github.com/Ikit24/Chirpy/internal/database"
 	"github.com/google/uuid"
@@ -14,14 +13,6 @@ import (
 type parameters struct {
 	Body string `json:"body"`
 	UserID string `json:"user_id"`
-}
-
-type ChirpResponse struct {
-    ID        uuid.UUID `json:"id"`
-    CreatedAt time.Time `json:"created_at"`
-    UpdatedAt time.Time `json:"updated_at"`
-    Body      string    `json:"body"`
-    UserID    uuid.UUID `json:"user_id"`
 }
 
 func respondWithError(w http.ResponseWriter, code int, msg string) {
