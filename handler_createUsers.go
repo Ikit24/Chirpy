@@ -4,10 +4,14 @@ import (
 	"encoding/json"
 	"net/http"
 	"log"
+
+	"github.com/Ikit24/Chirpy/internal/auth"
+	"github.com/Ikit24/Chirpy/internal/database"
 )
 
 type userParams struct {
-	Email string `json:"email"`
+	Email	 string `json:"email"`
+	Password string `json:"password"`
 }
 
 func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request) {
@@ -17,7 +21,16 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	dbUser, err := cfg.db.CreateUser(r.Context(), params.Email)
+	hash, err := auth.HashPassword(params.Password)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "couldn't hash password")
+		return
+	}
+
+	dbUser, err := cfg.db.CreateUser(r.Context(), database.CreateUserParams{
+		Email:		params.Email,
+		HashedPassword: hash,
+	})
 	if err != nil {
 		log.Println("create error:", err)
 		respondWithError(w, http.StatusInternalServerError, "couldn't create user")
