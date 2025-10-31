@@ -58,6 +58,8 @@ func main() {
 	mux.HandleFunc("POST /admin/reset", cfg.handlerReset)
 	mux.HandleFunc("POST /api/chirps", cfg.handlerChirps)
 	mux.HandleFunc("POST /api/users", cfg.handlerUsersCreate)
+	mux.HandleFunc("POST /api/login", cfg.handlerLogin)
+
 
 	srv := &http.Server{Addr: ":" + port, Handler: mux}
 	log.Fatal(srv.ListenAndServe())
