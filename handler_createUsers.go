@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"net/http"
-	"log"
 
 	"github.com/Ikit24/Chirpy/internal/auth"
 	"github.com/Ikit24/Chirpy/internal/database"
@@ -32,7 +31,6 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 		HashedPassword: hash,
 	})
 	if err != nil {
-		log.Println("create error:", err)
 		respondWithError(w, http.StatusInternalServerError, "couldn't create user")
 		return
 	}
