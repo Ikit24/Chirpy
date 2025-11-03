@@ -1,8 +1,8 @@
 package main
 
 import (
-	"net/http"
 	"encoding/json"
+	"net/http"
 
 	"github.com/Ikit24/Chirpy/internal/auth"
 )
@@ -25,10 +25,10 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	out := User{
-	    ID:        dbLogin.ID,
-	    CreatedAt: dbLogin.CreatedAt,
-	    UpdatedAt: dbLogin.UpdatedAt,
-	    Email:     dbLogin.Email,
+		ID:        dbLogin.ID,
+		CreatedAt: dbLogin.CreatedAt,
+		UpdatedAt: dbLogin.UpdatedAt,
+		Email:     dbLogin.Email,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

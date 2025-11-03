@@ -1,23 +1,23 @@
 package main
 
 import (
+	"database/sql"
 	_ "github.com/lib/pq"
 	"log"
 	"net/http"
-	"sync/atomic"
-	"database/sql"
 	"os"
+	"sync/atomic"
 	"time"
 
+	"github.com/Ikit24/Chirpy/internal/database"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
-	"github.com/Ikit24/Chirpy/internal/database"
 )
 
 type apiConfig struct {
 	fileserverHits atomic.Int32
-	db *database.Queries
-	platform string
+	db             *database.Queries
+	platform       string
 }
 
 type User struct {
@@ -39,10 +39,10 @@ func main() {
 	queries := database.New(db)
 
 	cfg := apiConfig{
-		db:	queries,
+		db:       queries,
 		platform: os.Getenv("PLATFORM"),
 	}
-	
+
 	const root = "."
 	const port = "8080"
 
@@ -59,7 +59,6 @@ func main() {
 	mux.HandleFunc("POST /api/chirps", cfg.handlerChirps)
 	mux.HandleFunc("POST /api/users", cfg.handlerUsersCreate)
 	mux.HandleFunc("POST /api/login", cfg.handlerLogin)
-
 
 	srv := &http.Server{Addr: ":" + port, Handler: mux}
 	log.Fatal(srv.ListenAndServe())

@@ -9,7 +9,7 @@ import (
 )
 
 type userParams struct {
-	Email	 string `json:"email"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
@@ -27,7 +27,7 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 	}
 
 	dbUser, err := cfg.db.CreateUser(r.Context(), database.CreateUserParams{
-		Email:		params.Email,
+		Email:          params.Email,
 		HashedPassword: hash,
 	})
 	if err != nil {
@@ -36,10 +36,10 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 	}
 
 	out := User{
-	    ID:        dbUser.ID,
-	    CreatedAt: dbUser.CreatedAt,
-	    UpdatedAt: dbUser.UpdatedAt,
-	    Email:     dbUser.Email,
+		ID:        dbUser.ID,
+		CreatedAt: dbUser.CreatedAt,
+		UpdatedAt: dbUser.UpdatedAt,
+		Email:     dbUser.Email,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)

@@ -1,21 +1,21 @@
 package main
 
 import (
-	"net/http"
-	"log"
 	"database/sql"
 	"errors"
+	"log"
+	"net/http"
 	"time"
 
 	"github.com/google/uuid"
 )
 
 type ChirpResponse struct {
-    ID        uuid.UUID `json:"id"`
-    CreatedAt time.Time `json:"created_at"`
-    UpdatedAt time.Time `json:"updated_at"`
-    Body      string    `json:"body"`
-    UserID    uuid.UUID `json:"user_id"`
+	ID        uuid.UUID `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Body      string    `json:"body"`
+	UserID    uuid.UUID `json:"user_id"`
 }
 
 func (cfg *apiConfig) handlerReturnChirps(w http.ResponseWriter, r *http.Request) {
@@ -28,11 +28,11 @@ func (cfg *apiConfig) handlerReturnChirps(w http.ResponseWriter, r *http.Request
 	resp := make([]ChirpResponse, 0, len(getChirps))
 	for _, c := range getChirps {
 		resp = append(resp, ChirpResponse{
-		ID:        c.ID,
-		CreatedAt: c.CreatedAt,
-		UpdatedAt: c.UpdatedAt,
-		Body:      c.Body,
-		UserID:    c.UserID,
+			ID:        c.ID,
+			CreatedAt: c.CreatedAt,
+			UpdatedAt: c.UpdatedAt,
+			Body:      c.Body,
+			UserID:    c.UserID,
 		})
 	}
 
@@ -56,11 +56,11 @@ func (cfg *apiConfig) handlerChirpsGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	resp := ChirpResponse{
-	    ID:        dbChirp.ID,
-	    CreatedAt: dbChirp.CreatedAt,
-	    UpdatedAt: dbChirp.UpdatedAt,
-	    Body:      dbChirp.Body,
-	    UserID:    dbChirp.UserID,
+		ID:        dbChirp.ID,
+		CreatedAt: dbChirp.CreatedAt,
+		UpdatedAt: dbChirp.UpdatedAt,
+		Body:      dbChirp.Body,
+		UserID:    dbChirp.UserID,
 	}
 
 	respondWithJSON(w, http.StatusOK, resp)

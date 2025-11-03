@@ -2,16 +2,16 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strings"
-	"log"
 
 	"github.com/Ikit24/Chirpy/internal/database"
 	"github.com/google/uuid"
 )
 
 type parameters struct {
-	Body string `json:"body"`
+	Body   string `json:"body"`
 	UserID string `json:"user_id"`
 }
 

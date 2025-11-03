@@ -3,8 +3,8 @@ package auth
 import (
 	"fmt"
 
-	"github.com/google/uuid"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
@@ -15,8 +15,8 @@ func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
 		func(t *jwt.Token) (any, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method")
-		}
-		return []byte(tokenSecret), nil
+			}
+			return []byte(tokenSecret), nil
 		},
 	)
 	if err != nil {
