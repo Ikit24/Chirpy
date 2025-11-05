@@ -2,6 +2,9 @@ package auth
 
 import (
 	"testing"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 func TestCheckPasswordHashing(t *testing.T) {
@@ -62,6 +65,62 @@ func TestCheckPasswordHashing(t *testing.T) {
 			}
 			if !tc.wantErr && match != tc.matchPassword {
 				t.Errorf("CheckPasswordHash() expects %v, got %v", tc.matchPassword, match)
+			}
+		})
+	}
+}
+
+func TestMakeAndValidateJWT_Valid(t *testing.T) {
+	tests := []struct {
+		name		string
+		expiresIn	time.Duration
+		makeWith	string
+		checkWith	string
+		wantErr		bool
+	}{
+		{
+			name:		"valid",
+			expiresIn:	time.Minute,
+			makeWith:	"secretA",
+			checkWith:	"secretA",
+			wantErr:	false,
+		},
+		{
+			name:		"expired",
+			expiresIn:	-time.Minute,
+			makeWith:	"secretA",
+			checkWith:	"secretA",
+			wantErr:	true,
+		},
+		{
+			name:		"wrong-secret",
+			expiresIn:	time.Minute,
+			makeWith:	"secretA",
+			checkWith:	"secretB",
+			wantErr:	true,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			userID := uuid.New()
+			token, err := MakeJWT(userID, tc.makeWith, tc.expiresIn)
+			if err != nil {
+				t.Errorf("Could create JWT: %v", err)
+			}
+
+			valID, err := ValidateJWT(token, tc.checkWith)
+			if tc.wantErr {
+				if err == nil {
+					t.Fatalf("expected error, got none")
+				}
+				return
+			}
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+			if valID != userID {
+				t.Errorf("want %s, got %s", userID, valID)
 			}
 		})
 	}
