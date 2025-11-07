@@ -18,6 +18,7 @@ type apiConfig struct {
 	fileserverHits atomic.Int32
 	db             *database.Queries
 	platform       string
+	secret		   string
 }
 
 type User struct {
@@ -38,9 +39,14 @@ func main() {
 
 	queries := database.New(db)
 
+	sec := os.Getenv("SECRET")
+	if sec == "" {
+		log.Fatal("SECRET missing")
+	}
 	cfg := apiConfig{
 		db:       queries,
 		platform: os.Getenv("PLATFORM"),
+		secret:   os.Getenv("SECRET"),
 	}
 
 	const root = "."
