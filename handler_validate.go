@@ -7,12 +7,11 @@ import (
 	"strings"
 
 	"github.com/Ikit24/Chirpy/internal/database"
-	"github.com/google/uuid"
+	"github.com/Ikit24/Chirpy/internal/auth"
 )
 
 type parameters struct {
 	Body   string `json:"body"`
-	UserID string `json:"user_id"`
 }
 
 func respondWithError(w http.ResponseWriter, code int, msg string) {
@@ -34,6 +33,18 @@ func (cfg *apiConfig) handlerChirps(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't get token")
+		return
+	}
+
+	validToken, err := auth.ValidateJWT(token, cfg.secret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't validate token")
+		return
+	}
+
 	if len(params.Body) > 140 {
 		respondWithError(w, http.StatusBadRequest, "Chirp is too long")
 		return
@@ -41,15 +52,9 @@ func (cfg *apiConfig) handlerChirps(w http.ResponseWriter, r *http.Request) {
 
 	cleanedBody := cleanProfanity(params.Body)
 
-	parsedUserID, err := uuid.Parse(params.UserID)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid User ID format")
-		return
-	}
-
 	createChirpParams := database.CreateChirpsParams{
 		Body:   cleanedBody,
-		UserID: parsedUserID,
+		UserID: validToken,
 	}
 
 	dbChirp, err := cfg.db.CreateChirps(r.Context(), createChirpParams)
