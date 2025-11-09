@@ -25,6 +25,7 @@ func (cfg *apiConfig) handlerReturnChirps(w http.ResponseWriter, r *http.Request
 		respondWithError(w, http.StatusInternalServerError, "couldn't retrieve chirps")
 		return
 	}
+
 	resp := make([]ChirpResponse, 0, len(getChirps))
 	for _, c := range getChirps {
 		resp = append(resp, ChirpResponse{
@@ -35,7 +36,6 @@ func (cfg *apiConfig) handlerReturnChirps(w http.ResponseWriter, r *http.Request
 			UserID:    c.UserID,
 		})
 	}
-
 	respondWithJSON(w, http.StatusOK, resp)
 }
 
@@ -46,6 +46,7 @@ func (cfg *apiConfig) handlerChirpsGet(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "bad id", http.StatusBadRequest)
 		return
 	}
+
 	dbChirp, err := cfg.db.GetChirp(r.Context(), id)
 	if errors.Is(err, sql.ErrNoRows) {
 		http.Error(w, "not found", http.StatusNotFound)
@@ -62,6 +63,5 @@ func (cfg *apiConfig) handlerChirpsGet(w http.ResponseWriter, r *http.Request) {
 		Body:      dbChirp.Body,
 		UserID:    dbChirp.UserID,
 	}
-
 	respondWithJSON(w, http.StatusOK, resp)
 }
