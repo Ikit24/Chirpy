@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Ikit24/Chirpy/internal/auth"
+	"github.com/Ikit24/Chirpy/internal/database"
 )
 
 func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
@@ -13,16 +14,6 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
 		respondWithError(w, http.StatusBadRequest, "invalid JSON")
 		return
-	}
-
-	var expirationSec int
-
-	if params.ExpiresInSeconds == 0 {
-		expirationSec = 3600
-	} else if params.ExpiresInSeconds > 3600 {
-		expirationSec = 3600
-	} else {
-		expirationSec = params.ExpiresInSeconds
 	}
 
 	dbLogin, err := cfg.db.GetUserByEmail(r.Context(), params.Email)
@@ -36,7 +27,22 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := auth.MakeJWT(dbLogin.ID, cfg.secret, time.Duration(expirationSec) * time.Second)
+	refreshToken, err := auth.MakeRefreshToken()
+	if err != nil{
+		respondWithError(w, http.StatusInternalServerError, "Couldn't create refresh token")
+		return
+	}
+
+	err = cfg.db.InsertRefreshToken(r.Context(), database.InsertRefreshTokenParams {
+		Token: refreshToken,
+		UserID: dbLogin.ID,
+	})
+	if err != nil{
+		respondWithError(w, http.StatusInternalServerError, "Couldn't create refresh token")
+		return
+	}
+
+	token, err := auth.MakeJWT(dbLogin.ID, cfg.secret, time.Hour)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't create token")
 		return
@@ -48,6 +54,7 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		UpdatedAt: dbLogin.UpdatedAt,
 		Email:     dbLogin.Email,
 		Token:     token,
+		RefreshToken: refreshToken,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
