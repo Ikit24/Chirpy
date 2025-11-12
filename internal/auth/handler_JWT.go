@@ -30,7 +30,9 @@ func GetBearerToken(headers http.Header) (string, error) {
 	if len(authVals) == 0 {
 		return "", errors.New("authorization header missing")
 	}
+
 	authHeader := authVals[0]
+
 	if !strings.HasPrefix(authHeader, "Bearer ") { return "", errors.New("invalid bearer token") }
 	token := strings.TrimSpace(strings.TrimPrefix(authHeader, "Bearer "))
 	if token == "" {

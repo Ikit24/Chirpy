@@ -11,6 +11,19 @@ import (
 	"github.com/google/uuid"
 )
 
+const getUserFromRefreshToken = `-- name: GetUserFromRefreshToken :one
+SELECT user_id
+FROM refresh_tokens
+WHERE token = $1 AND expires_at > NOW() AND revoked_at IS NULL
+`
+
+func (q *Queries) GetUserFromRefreshToken(ctx context.Context, token string) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, getUserFromRefreshToken, token)
+	var user_id uuid.UUID
+	err := row.Scan(&user_id)
+	return user_id, err
+}
+
 const insertRefreshToken = `-- name: InsertRefreshToken :exec
 INSERT INTO refresh_tokens (token, user_id, expires_at, revoked_at)
 VALUES (
@@ -18,7 +31,7 @@ VALUES (
     $2,
     NOW() + INTERVAL '60 days',
     NULL
-    )
+)
 `
 
 type InsertRefreshTokenParams struct {

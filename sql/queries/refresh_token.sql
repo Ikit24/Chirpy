@@ -5,4 +5,9 @@ VALUES (
     $2,
     NOW() + INTERVAL '60 days',
     NULL
-    );
+);
+
+-- name: GetUserFromRefreshToken :one
+SELECT user_id
+FROM refresh_tokens
+WHERE token = $1 AND expires_at > NOW() AND revoked_at IS NULL;
