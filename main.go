@@ -70,7 +70,7 @@ func main() {
 	mux.HandleFunc("POST /api/refresh", cfg.handlerRefresh)
 	mux.HandleFunc("POST /api/revoke", cfg.handlerRevoke)
 
-	mux.HandleFunc("PUT /api/users", cfg.handlerUsersPu)
+	mux.HandleFunc("PUT /api/users", cfg.handlerUsersPut)
 
 	srv := &http.Server{Addr: ":" + port, Handler: mux}
 	log.Fatal(srv.ListenAndServe())
