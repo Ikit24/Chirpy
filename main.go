@@ -72,7 +72,7 @@ func main() {
 
 	mux.HandleFunc("PUT /api/users", cfg.handlerUsersPut)
 
-	mux.HandleFunc("DELETE /api/chirps/{chirpID}", cfg.handlerUsersPut)
+	mux.HandleFunc("DELETE /api/chirps/{chirpID}", cfg.handlerChirpsDelete)
 
 	srv := &http.Server{Addr: ":" + port, Handler: mux}
 	log.Fatal(srv.ListenAndServe())
