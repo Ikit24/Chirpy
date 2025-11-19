@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/Ikit24/Chirpy/internal/auth"
 )
 
 func (cfg *apiConfig) handlerChirpsDelete(w http.ResponseWriter, r *http.Request) {
@@ -28,13 +29,13 @@ func (cfg *apiConfig) handlerChirpsDelete(w http.ResponseWriter, r *http.Request
 
 	token, err := auth.GetBearerToken(r.Header)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't get token")
+		respondWithError(w, http.StatusUnauthorized, "couldn't get token")
 		return
 	}
 
 	userID, err := auth.ValidateJWT(token, cfg.secret)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't get token")
+		respondWithError(w, http.StatusUnauthorized, "couldn't validate token")
 		return
 	}
 
@@ -42,3 +43,10 @@ func (cfg *apiConfig) handlerChirpsDelete(w http.ResponseWriter, r *http.Request
 		respondWithError(w, http.StatusForbidden, "forbidden")
 		return
 	}
+	
+	if err := cfg.db.DeleteChirp(r.Context(), id); err != nil {
+		respondWithError(w, http.StatusInternalServerError, "internal error ")
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
