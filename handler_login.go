@@ -4,13 +4,19 @@ import (
 	"encoding/json"
 	"net/http"
 	"time"
+	"log"
 
 	"github.com/Ikit24/Chirpy/internal/auth"
 	"github.com/Ikit24/Chirpy/internal/database"
 )
 
 func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
-	var params userParams
+	type loginParams struct {
+        Email    string `json:"email"`
+        Password string `json:"password"`
+	}
+
+	var params loginParams
 	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
 		respondWithError(w, http.StatusBadRequest, "invalid JSON")
 		return
@@ -33,11 +39,14 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	expiresAt := time.Now().Add(60 * 24 * time.Hour)
 	err = cfg.db.InsertRefreshToken(r.Context(), database.InsertRefreshTokenParams {
 		Token: refreshToken,
 		UserID: dbLogin.ID,
+		ExpiresAt: expiresAt,
 	})
 	if err != nil{
+		log.Printf("InsertRefreshToken error: %v", err)
 		respondWithError(w, http.StatusInternalServerError, "Couldn't create refresh token")
 		return
 	}
@@ -55,6 +64,7 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		Email:     dbLogin.Email,
 		Token:     token,
 		RefreshToken: refreshToken,
+		IsChirpyRed: dbLogin.IsChirpyRed,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

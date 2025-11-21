@@ -9,8 +9,9 @@ import (
 )
 
 type updateUserParams struct {
-    Email    string `json:"email"`
-    Password string `json:"password"`
+    Email    	string `json:"email"`
+    Password 	string `json:"password"`
+	IsChirpyRed bool   `json:"is_chirpy_red"`
 }
 
 func (cfg *apiConfig) handlerUsersPut(w http.ResponseWriter, r *http.Request) {

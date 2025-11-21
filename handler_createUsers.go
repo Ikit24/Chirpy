@@ -3,19 +3,19 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"log"
 
 	"github.com/Ikit24/Chirpy/internal/auth"
 	"github.com/Ikit24/Chirpy/internal/database"
 )
 
-type userParams struct {
-    Email            string `json:"email"`
-    Password         string `json:"password"`
-    ExpiresInSeconds int    `json:"expires_in_seconds"`
-}
-
 func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request) {
-	var params userParams
+	type createUserParams struct {
+		Email            string `json:"email"`
+		Password         string `json:"password"`
+	}
+
+	var params createUserParams
 	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
 		respondWithError(w, http.StatusBadRequest, "invalid JSON")
 		return
@@ -32,6 +32,7 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 		HashedPassword: hash,
 	})
 	if err != nil {
+		log.Printf("CreateUser error: %v", err)
 		respondWithError(w, http.StatusInternalServerError, "couldn't create user")
 		return
 	}
@@ -41,6 +42,7 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 		CreatedAt: dbUser.CreatedAt,
 		UpdatedAt: dbUser.UpdatedAt,
 		Email:     dbUser.Email,
+		IsChirpyRed: dbUser.IsChirpyRed,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
