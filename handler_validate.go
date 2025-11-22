@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"strings"
 
@@ -29,24 +28,24 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 func (cfg *apiConfig) handlerChirps(w http.ResponseWriter, r *http.Request) {
 	var params parameters
 	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Something went wrong")
+		respondWithError(w, http.StatusBadRequest, "something went wrong")
 		return
 	}
 
 	token, err := auth.GetBearerToken(r.Header)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't get token")
+		respondWithError(w, http.StatusUnauthorized, "couldn't get token")
 		return
 	}
 
 	validToken, err := auth.ValidateJWT(token, cfg.secret)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate token")
+		respondWithError(w, http.StatusUnauthorized, "couldn't validate token")
 		return
 	}
 
 	if len(params.Body) > 140 {
-		respondWithError(w, http.StatusBadRequest, "Chirp is too long")
+		respondWithError(w, http.StatusBadRequest, "chirp is too long")
 		return
 	}
 
@@ -59,7 +58,6 @@ func (cfg *apiConfig) handlerChirps(w http.ResponseWriter, r *http.Request) {
 
 	dbChirp, err := cfg.db.CreateChirps(r.Context(), createChirpParams)
 	if err != nil {
-		log.Printf("Error creating chirp: %v", err)
 		respondWithError(w, http.StatusInternalServerError, "couldn't create chirp")
 		return
 	}

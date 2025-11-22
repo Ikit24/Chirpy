@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"errors"
-	"log"
 	"net/http"
 	"time"
 
@@ -21,7 +20,6 @@ type ChirpResponse struct {
 func (cfg *apiConfig) handlerReturnChirps(w http.ResponseWriter, r *http.Request) {
 	getChirps, err := cfg.db.GetAllChirps(r.Context())
 	if err != nil {
-		log.Printf("Error retrieving chirps: %v", err)
 		respondWithError(w, http.StatusInternalServerError, "couldn't retrieve chirps")
 		return
 	}
@@ -43,17 +41,17 @@ func (cfg *apiConfig) handlerChirpsGet(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("chirpID")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		http.Error(w, "bad id", http.StatusBadRequest)
+		respondWithError(w, http.StatusBadRequest, "bad id")
 		return
 	}
 
 	dbChirp, err := cfg.db.GetChirp(r.Context(), id)
 	if errors.Is(err, sql.ErrNoRows) {
-		http.Error(w, "not found", http.StatusNotFound)
+		respondWithError(w, http.StatusNotFound, "not found")
 		return
 	}
 	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+		respondWithError(w, http.StatusInternalServerError, "internal error")
 		return
 	}
 	resp := ChirpResponse{

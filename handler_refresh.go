@@ -14,17 +14,17 @@ type respToken struct {
 func (cfg *apiConfig) handlerRefresh(w http.ResponseWriter, r *http.Request) {
 	token, err := auth.GetBearerToken(r.Header)
 	if err != nil{
-		respondWithError(w, http.StatusUnauthorized, "Unauthorized")
+		respondWithError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 	userID, err := cfg.db.GetUserFromRefreshToken(r.Context(), token)
 	if err != nil{
-		respondWithError(w, http.StatusUnauthorized, "Unauthorized")
+		respondWithError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 	newAccess, err := auth.MakeJWT(userID, cfg.secret, time.Hour)
 		if err != nil{
-		respondWithError(w, http.StatusInternalServerError, "Server error")
+		respondWithError(w, http.StatusInternalServerError, "server error")
 		return
 	}
 	out := respToken{Token: newAccess}

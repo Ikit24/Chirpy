@@ -2,8 +2,8 @@ package main
 
 import (
 	"database/sql"
-	"errors"
 	"net/http"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/Ikit24/Chirpy/internal/auth"
@@ -13,17 +13,17 @@ func (cfg *apiConfig) handlerChirpsDelete(w http.ResponseWriter, r *http.Request
 	idStr := r.PathValue("chirpID")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		http.Error(w, "bad id", http.StatusBadRequest)
+		respondWithError(w, http.StatusBadRequest, "bad id")
 		return
 	}
 
 	dbChirp, err := cfg.db.GetChirp(r.Context(), id)
 	if errors.Is(err, sql.ErrNoRows) {
-		http.Error(w, "not found", http.StatusNotFound)
+		respondWithError(w, http.StatusNotFound, "not found")
 		return
 	}
 	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+		respondWithError(w, http.StatusInternalServerError, "internal error")
 		return
 	}
 
