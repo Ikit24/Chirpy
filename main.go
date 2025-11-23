@@ -18,7 +18,8 @@ type apiConfig struct {
 	fileserverHits atomic.Int32
 	db             *database.Queries
 	platform       string
-	secret		   string
+	secret         string
+	polkaKey       string
 }
 
 type User struct {
@@ -50,6 +51,7 @@ func main() {
 		db:       queries,
 		platform: os.Getenv("PLATFORM"),
 		secret:   os.Getenv("SECRET"),
+		polkaKey: os.Getenv("POLKA_KEY"),
 	}
 
 	const root = "."
