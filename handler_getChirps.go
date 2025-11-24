@@ -24,6 +24,8 @@ func (cfg *apiConfig) handlerReturnChirps(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	authorIDString := r.URL.Query().Get("author_id")
+
 	resp := make([]ChirpResponse, 0, len(getChirps))
 	for _, c := range getChirps {
 		resp = append(resp, ChirpResponse{
