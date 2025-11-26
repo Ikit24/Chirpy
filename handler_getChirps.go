@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"time"
+	"sort"
 
 	"github.com/google/uuid"
 )
@@ -34,6 +35,8 @@ func (cfg *apiConfig) handlerReturnChirps(w http.ResponseWriter, r *http.Request
 			}
 	}
 
+	sortOrder := r.URL.Query().Get("sort")
+
 	resp := make([]ChirpResponse, 0, len(getChirps))
 	for _, c := range getChirps {
 		if (authorID != uuid.Nil) && (c.UserID != authorID) {
@@ -47,6 +50,17 @@ func (cfg *apiConfig) handlerReturnChirps(w http.ResponseWriter, r *http.Request
 			UserID:    c.UserID,
 		})
 	}
+
+	if sortOrder == "asc" || sortOrder == "" {
+		sort.Slice(resp, func(i, j int) bool {
+			return resp[i].CreatedAt.Before(resp[j].CreatedAt)
+		})
+	} else if sortOrder == "desc" {
+		sort.Slice(resp, func(i, j int) bool {
+			return resp[j].CreatedAt.Before(resp[i].CreatedAt)
+		})
+	}
+
 	respondWithJSON(w, http.StatusOK, resp)
 }
 
