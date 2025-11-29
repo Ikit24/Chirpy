@@ -14,7 +14,7 @@ type updateUserParams struct {
 	IsChirpyRed bool   `json:"is_chirpy_red"`
 }
 
-func (cfg *apiConfig) handlerUsersPut(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerPutUsers(w http.ResponseWriter, r *http.Request) {
 	var params updateUserParams
 	if err := json.NewDecoder(r.Body).Decode(&params) ; err != nil {
 		respondWithError(w, http.StatusBadRequest, "invalid JSON")

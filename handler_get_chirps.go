@@ -18,7 +18,7 @@ type ChirpResponse struct {
 	UserID    uuid.UUID `json:"user_id"`
 }
 
-func (cfg *apiConfig) handlerReturnChirps(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerListChirps(w http.ResponseWriter, r *http.Request) {
 	getChirps, err := cfg.db.GetAllChirps(r.Context())
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "couldn't retrieve chirps")
@@ -64,7 +64,7 @@ func (cfg *apiConfig) handlerReturnChirps(w http.ResponseWriter, r *http.Request
 	respondWithJSON(w, http.StatusOK, resp)
 }
 
-func (cfg *apiConfig) handlerChirpsGet(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerGetChirp(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("chirpID")
 	id, err := uuid.Parse(idStr)
 	if err != nil {

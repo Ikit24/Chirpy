@@ -63,18 +63,18 @@ func main() {
 
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
 	mux.HandleFunc("GET /admin/metrics", cfg.handlerMetrics)
-	mux.HandleFunc("GET /api/chirps", cfg.handlerReturnChirps)
-	mux.HandleFunc("GET /api/chirps/{chirpID}", cfg.handlerChirpsGet)
+	mux.HandleFunc("GET /api/chirps", cfg.handlerListChirps)
+	mux.HandleFunc("GET /api/chirps/{chirpID}", cfg.handlerGetChirp)
 
 	mux.HandleFunc("POST /admin/reset", cfg.handlerReset)
-	mux.HandleFunc("POST /api/chirps", cfg.handlerChirps)
+	mux.HandleFunc("POST /api/chirps", cfg.handlerCreateChirps)
 	mux.HandleFunc("POST /api/users", cfg.handlerUsersCreate)
 	mux.HandleFunc("POST /api/login", cfg.handlerLogin)
-	mux.HandleFunc("POST /api/refresh", cfg.handlerRefresh)
+	mux.HandleFunc("POST /api/refresh", cfg.handlerTokenRefresh)
 	mux.HandleFunc("POST /api/revoke", cfg.handlerRevoke)
 	mux.HandleFunc("POST /api/polka/webhooks", cfg.handlerWebhooks)
 
-	mux.HandleFunc("PUT /api/users", cfg.handlerUsersPut)
+	mux.HandleFunc("PUT /api/users", cfg.handlerPutUsers)
 
 	mux.HandleFunc("DELETE /api/chirps/{chirpID}", cfg.handlerChirpsDelete)
 
