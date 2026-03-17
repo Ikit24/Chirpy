@@ -5,7 +5,7 @@ Chirpy is a simple social network similar to X (Twitter).
 ## Motivation
 
 This project was built as part of a guided course to learn Go web development.  
-I implemented features like authentication, routing, and data persistence to practice building a real-world style backend.
+I implemented features like authentication, routing and data persistence to practice building a real-world style backend.
 
 ## Features
 
